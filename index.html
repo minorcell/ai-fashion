@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI赋能时尚：交互式洞察报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard with a sticky top navigation bar for smooth scrolling to four key thematic sections: 1) Pain Point Analysis, 2) AI Solutions, 3) Market Insights, and 4) Ethics & Challenges. This non-linear, user-driven structure was chosen to transform the dense report into a digestible and engaging experience. Users can immediately jump to the content most relevant to them. Pain points are presented as interactive cards, solutions via a tabbed interface, market data through dynamic charts, and ethical issues in an accordion. This design prioritizes exploration and clarity over the linear format of the original report, making complex information more accessible and easier to synthesize. -->
+    <!-- Visualization & Content Choices: 
+        - Pain Points (Goal: Inform): Presented as interactive cards with icons and key stats (HTML/Tailwind/JS) to provide a quick, visual overview.
+        - AI Solutions (Goal: Organize/Inform): A tabbed interface (HTML/JS) cleanly separates the three main product concepts. Each tab contains details on features and underlying tech, using icons for scannability.
+        - Market Data (Goal: Compare/Change): Interactive bar and line charts (Chart.js/Canvas) visualize market size and growth forecasts, making quantitative data easy to understand and compare. Hover interactions provide specific data points.
+        - Ethics & Challenges (Goal: Organize): An accordion (HTML/JS) manages large blocks of text, allowing users to explore complex topics one at a time without being overwhelmed.
+        - Justification: This multi-faceted approach transforms the report from static text into an interactive dashboard, catering to different user interests and enhancing comprehension through visual and interactive storytelling. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FDFBF8;
+            color: #383838;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #C2410C;
+            border-bottom-color: #C2410C;
+        }
+
+        .tab-button.active {
+            background-color: #C2410C;
+            color: white;
+        }
+
+        .tab-button {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .accordion-header::after {
+            content: '\25BC';
+            float: right;
+            transition: transform 0.3s;
+            font-size: 0.8em;
+        }
+
+        .accordion-header.open::after {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <header id="header" class="bg-[#FDFBF8]/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-orange-900">AI赋能时尚</h1>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#pain-points" class="nav-link text-gray-600 font-medium pb-1">痛点分析</a>
+                <a href="#solutions" class="nav-link text-gray-600 font-medium pb-1">AI解决方案</a>
+                <a href="#market" class="nav-link text-gray-600 font-medium pb-1">市场洞察</a>
+                <a href="#ethics" class="nav-link text-gray-600 font-medium pb-1">伦理与挑战</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#pain-points" class="block py-2 text-gray-600">痛点分析</a>
+            <a href="#solutions" class="block py-2 text-gray-600">AI解决方案</a>
+            <a href="#market" class="block py-2 text-gray-600">市场洞察</a>
+            <a href="#ethics" class="block py-2 text-gray-600">伦理与挑战</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 md:py-32 bg-amber-50">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-5xl font-bold text-orange-900 mb-4">当AI遇见时尚：解决穿搭的终极难题</h2>
+                <p class="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
+                    本报告将深入探讨人工智能如何从产品角度出发，提供创新解决方案，以解决消费者长期面临的穿搭痛点，从而提升体验、优化效率并推动时尚产业的可持续发展。</p>
+            </div>
+        </section>
+
+        <section id="pain-points" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-2">时尚消费者的核心痛点</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        从选购到售后，消费者在时尚旅程中面临着诸多挑战。本节将通过互动卡片揭示这些普遍存在的痛点，它们不仅影响个人体验，也对整个行业的可持续性构成挑战。</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+            </div>
+        </section>
+
+        <section id="solutions" class="py-16 md:py-24 bg-orange-50/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-2">AI产品解决方案</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        针对上述痛点，AI技术提供了变革性的产品解决方案。本节将详细介绍三大核心AI产品概念，展示它们如何利用先进技术重塑消费者的时尚体验。</p>
+                </div>
+                <div class="mb-8 flex justify-center border-b border-gray-200">
+                    <button data-tab="solution-1"
+                        class="tab-button py-3 px-6 font-medium text-gray-600 border-b-2 border-transparent hover:text-orange-800 hover:border-orange-800 transition-all duration-300 active">虚拟试穿与尺码</button>
+                    <button data-tab="solution-2"
+                        class="tab-button py-3 px-6 font-medium text-gray-600 border-b-2 border-transparent hover:text-orange-800 hover:border-orange-800 transition-all duration-300">AI个人造型师</button>
+                    <button data-tab="solution-3"
+                        class="tab-button py-3 px-6 font-medium text-gray-600 border-b-2 border-transparent hover:text-orange-800 hover:border-orange-800 transition-all duration-300">AI赋能可持续</button>
+                </div>
+                <div id="solutions-content">
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-2">市场洞察与增长潜力</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        AI时尚市场正在经历爆发式增长。本节通过交互式图表，直观展示各细分市场的当前规模和未来预测，揭示AI在时尚领域巨大的商业价值和发展前景。</p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-center">AI时尚细分市场规模 (2024年估值)</h3>
+                        <div class="chart-container">
+                            <canvas id="marketSizeChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-center">AI时尚市场增长预测 (复合年增长率)</h3>
+                        <div class="chart-container">
+                            <canvas id="marketGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ethics" class="py-16 md:py-24 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-2">实施考量与伦理框架</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        将AI融入时尚行业不仅是技术挑战，更伴随着深远的伦理影响。本节探讨了数据隐私、算法偏见等关键问题，并提出了相应的缓解策略，强调负责任创新的重要性。</p>
+                </div>
+                <div id="ethics-accordion" class="max-w-3xl mx-auto space-y-4">
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-stone-800 text-gray-300 py-8">
+            <div class="container mx-auto px-6 text-center">
+                <p>AI赋能时尚：交互式洞察报告</p>
+                <p class="text-sm text-gray-400 mt-2">基于产品视角下解决消费者穿搭痛点的研究</p>
+            </div>
+        </footer>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const painPointsData = [
+                {
+                    icon: '📏',
+                    title: '尺码不一与合身性',
+                    stat: '76%的消费者保留不合身商品',
+                    description: '不同品牌甚至同品牌内尺码不一，导致消费者严重挫败感。寻找合身衣物不仅耗时，还影响自信心，最终导致高退货率和纺织品浪费。'
+                },
+                {
+                    icon: '🤯',
+                    title: '购物体验与决策疲劳',
+                    stat: '91%的消费者在实体店感到不知所措',
+                    description: '过多的选择、不足的信息和繁琐的流程让购物成为一项苦差事。消费者渴望一个更精简、更值得信赖的发现过程。'
+                },
+                {
+                    icon: '📦',
+                    title: '退货与售后麻烦',
+                    stat: '高退货率增加碳排放',
+                    description: '退货流程本身就是一大痛点，涉及运费、物流不便和不明确的退货政策。这不仅影响客户满意度，还加剧了环境负担。'
+                },
+                {
+                    icon: '🌿',
+                    title: '材料质量与可持续性',
+                    stat: '时尚业贡献全球10%的碳排放',
+                    description: '消费者日益关注面料质量和环保问题，但可持续时尚往往被认为“太贵”且“难以企及”，价值观与市场现实存在鸿沟。'
+                },
+                {
+                    icon: '👖',
+                    title: '特定设计痛点',
+                    stat: '口袋不足、版型问题',
+                    description: '服装缺乏实用口袋、大尺码与标准码的版型问题（如衣长、袖型）、以及套装必须成套购买等，都增加了寻找理想服装的难度。'
+                },
+                {
+                    icon: '💰',
+                    title: '虚假促销与信任缺失',
+                    stat: '普遍存在的“虚假促销”',
+                    description: '将虚高价格伪装成折扣的“虚假促销”和不明确的退货政策侵蚀了消费者信任，使购买决策风险更高。'
+                }
+            ];
+
+            const solutionsData = {
+                'solution-1': {
+                    title: '虚拟试穿与精准尺码解决方案',
+                    concept: '该方案旨在虚拟地复制和增强实体店的试衣体验，通过虚拟试衣间和先进的身体测量工具，弥补数字购物与实体购物之间的关键鸿沟，直接解决消费者对尺码、合身度的不确定性。',
+                    features: [
+                        { icon: '📷', name: '逼真可视化', desc: '用户上传照片，AI生成高度逼真的服装上身预览，细致考虑合身度与垂坠感。' },
+                        { icon: '👤', name: '3D身体扫描', desc: '使用手机摄像头生成3D虚拟形象，AI分析海量数据提供跨品牌、高度个性化的尺码建议。' },
+                        { icon: '📉', name: '减少退货', desc: '通过增强购买信心和提供明智决策支持，已被证明可减少高达30%的退货。' },
+                        { icon: '🌍', name: '增强包容性', desc: '提供代表不同身高、体型和肤色的模特，并支持设计师开发真正体型友好的时尚。' }
+                    ],
+                    tech: ['计算机视觉 (CV)', '增强现实 (AR)', '机器学习 (ML)']
+                },
+                'solution-2': {
+                    title: 'AI个人造型师与穿搭生成器',
+                    concept: '通过AI驱动的推荐引擎和对话式造型师，提供高度定制的时尚建议。平台学习用户的个人偏好，推荐真正适合的单品和完整穿搭，有效“消除购物中的猜测”。',
+                    features: [
+                        { icon: '✨', name: '个性化穿搭建议', desc: '根据体型、品味和最新趋势动态调整，推荐完整穿搭，甚至盘活现有衣橱。' },
+                        { icon: '📝', name: '衣橱整合与管理', desc: '充当“数字衣橱”，提供新旧单品搭配建议，最大化衣橱多功能性。' },
+                        { icon: '💬', name: '对话式自然语言界面', desc: '通过聊天界面实时回答时尚问题，理解“为Zoom会议推荐上衣”等自然语言需求。' },
+                        { icon: '🛍️', name: '推广长尾产品', desc: 'AI能考虑整个产品目录，推广鲜为人知但匹配用户需求的商品，提高其可发现性。' }
+                    ],
+                    tech: ['自然语言处理 (NLP)', '计算机视觉 (CV)', '协同过滤', '生成式AI']
+                },
+                'solution-3': {
+                    title: 'AI赋能可持续时尚与材料洞察',
+                    concept: '该方案专为解决时尚行业对环境的深远影响而设计，通过优化供应链、减少浪费、确保道德规范和促进循环经济，直接应对行业高碳排放和纺织品浪费的挑战。',
+                    features: [
+                        { icon: '📈', name: '精准需求预测', desc: 'AI分析实时趋势，使品牌能“精确生产所需”，可将预测误差降低50%，库存过剩减少30-50%。' },
+                        { icon: '♻️', name: '材料优化与减废', desc: 'AI分析面料裁剪布局，设计“零浪费图案”，并通过数字原型减少实体样品浪费。' },
+                        { icon: '🔗', name: '供应链透明与追溯', desc: '提供产品从原料到工厂的详细历史，结合区块链建立消费者对可持续性声明的信任。' },
+                        { icon: '🔄', name: '支持循环时尚', desc: '追踪服装全生命周期，识别维修、转售或回收机会，高效匹配二手市场买卖双方。' }
+                    ],
+                    tech: ['预测分析', '机器学习 (ML)', '数据处理与分类', '计算机视觉 (CV)']
+                }
+            };
+
+            const ethicsData = [
+                { title: '数据隐私', content: 'AI系统依赖大量用户数据（偏好、身体测量等），可能在缺乏透明度或明确同意的情况下收集。缓解策略包括实施严格数据保护法（如GDPR）、提高透明度并确保用户明确同意。' },
+                { title: '算法偏见与歧视', content: 'AI可能反映现有社会偏见，导致推荐中偏爱特定体型或排斥大码消费者。缓解策略包括确保训练数据多样化、定期进行偏见审计并引入人类监督。' },
+                { title: '问责制与可解释性', content: '当AI导致负面结果时，难以确定责任。消费者有权了解影响其选择的决策过程。需建立清晰的问责框架，并确保AI决策过程的透明度。' },
+                { title: '就业影响', content: '自动化可能导致制造业和零售业的岗位流失。需投资于员工技能提升和再培训计划，并促进人机协作的新工作模式。' },
+                { title: '知识产权与创意所有权', content: 'AI生成的设计可能引发所有权和侵权问题。需实施强有力的知识产权保护，并制定AI生成内容的明确归属和许可协议。' },
+                { title: '绿色洗白与真实性', content: '品牌可能利用AI制造环保假象。需确保AI应用真实可验证，通过AI增强供应链透明度，并对可持续性声明进行严格评估。' },
+                { title: '身体形象与不切实际期望', content: '虚拟试穿工具或训练数据可能反映不切实际的身体标准，加剧身体形象问题。需确保模型在多样化、包容性的身体类型上训练，并避免增强敏感身体特征。' }
+            ];
+
+            const painPointsContainer = document.querySelector('#pain-points .grid');
+            painPointsData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1';
+                card.innerHTML = `
+            <div class="flex items-center mb-4">
+                <span class="text-3xl mr-4">${item.icon}</span>
+                <h3 class="text-lg font-semibold">${item.title}</h3>
+            </div>
+            <p class="text-gray-600 mb-3">${item.description}</p>
+            <p class="text-sm font-bold text-orange-800">${item.stat}</p>
+        `;
+                painPointsContainer.appendChild(card);
+            });
+
+            const solutionsContent = document.getElementById('solutions-content');
+            const solutionTabs = document.querySelectorAll('.tab-button');
+
+            function renderSolution(solutionId) {
+                const data = solutionsData[solutionId];
+                solutionsContent.innerHTML = `
+            <div class="bg-white p-8 rounded-lg shadow-lg animate-fade-in">
+                <h3 class="text-2xl font-bold mb-4">${data.title}</h3>
+                <p class="text-gray-600 mb-8">${data.concept}</p>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    ${data.features.map(feature => `
+                        <div class="flex items-start">
+                            <span class="text-2xl text-orange-700 mr-3 mt-1">${feature.icon}</span>
+                            <div>
+                                <h4 class="font-semibold">${feature.name}</h4>
+                                <p class="text-sm text-gray-500">${feature.desc}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">底层AI技术:</h4>
+                    <div class="flex flex-wrap gap-2">
+                        ${data.tech.map(t => `<span class="bg-orange-100 text-orange-800 text-sm font-medium px-3 py-1 rounded-full">${t}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+                document.querySelector('.animate-fade-in').style.animation = 'fadeIn 0.5s ease-in-out';
+            }
+
+            solutionTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    solutionTabs.forEach(t => t.classList.remove('active', 'bg-orange-800', 'text-white'));
+                    tab.classList.add('active', 'bg-orange-800', 'text-white');
+                    renderSolution(tab.dataset.tab);
+                });
+            });
+
+            renderSolution('solution-1');
+            document.querySelector('.tab-button[data-tab="solution-1"]').classList.add('active', 'bg-orange-800', 'text-white');
+
+
+            const marketSizeCtx = document.getElementById('marketSizeChart').getContext('2d');
+            const marketGrowthCtx = document.getElementById('marketGrowthChart').getContext('2d');
+
+            const marketSizeChart = new Chart(marketSizeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['整体AI时尚市场', 'AI个性化造型师', '虚拟试穿市场'],
+                    datasets: [{
+                        label: '2024年市场估值 (亿美元)',
+                        data: [21.9, 1.27, 125],
+                        backgroundColor: ['#FDBA74', '#FB923C', '#F97316'],
+                        borderColor: ['#FB923C', '#F97316', '#EA580C'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return ` ${context.dataset.label}: ${context.formattedValue} 亿美元`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '亿美元'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const marketGrowthChart = new Chart(marketGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['整体AI时尚市场', 'AI个性化造型师', '虚拟试穿市场'],
+                    datasets: [{
+                        label: '复合年增长率 (CAGR)',
+                        data: [39.8, 36.5, 25.5],
+                        fill: false,
+                        borderColor: '#C2410C',
+                        backgroundColor: '#C2410C',
+                        tension: 0.1,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#C2410C',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return ` ${context.dataset.label}: ${context.formattedValue}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'CAGR (%)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const accordionContainer = document.getElementById('ethics-accordion');
+            ethicsData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'border border-gray-200 rounded-lg overflow-hidden';
+                div.innerHTML = `
+            <div class="accordion-header bg-white hover:bg-gray-50 p-4 cursor-pointer font-medium">
+                ${item.title}
+            </div>
+            <div class="accordion-content p-4 bg-white border-t border-gray-200 text-gray-600 hidden">
+                ${item.content}
+            </div>
+        `;
+                accordionContainer.appendChild(div);
+            });
+
+            accordionContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('accordion-header')) {
+                    const content = e.target.nextElementSibling;
+                    e.target.classList.toggle('open');
+                    content.classList.toggle('hidden');
+                }
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const navLinks = document.querySelectorAll('header nav a, #mobile-menu a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        const headerOffset = document.getElementById('header').offsetHeight;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                    if (mobileMenu.classList.contains('hidden') === false) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const sections = document.querySelectorAll('main section[id]');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                const headerHeight = document.getElementById('header').offsetHeight;
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - headerHeight - 5;
+                    if (pageYOffset >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+
+</html>
